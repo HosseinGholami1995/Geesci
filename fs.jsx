@@ -4,17 +4,17 @@
 //for debug in vscode simply ,1)install Adobe Script Runner , 2)ExtenedScript Debuger 
 var message= "1) Game 2)Pezeshki 3)Tarah ------3)omomi  4)green, under compeletment ! "
 
-
 var value="Tarah"
 var Cnf =confirm("do U whant prepare size ?  \r\r else make moc,cut,chap ");
 
-if (Cnf==false)
-    value = prompt("type the kind of mockup which you whant to creat \r at this time we have \r"+message)
+if (Cnf==false){
+    value = prompt("type the kind of mockup which you whant to creat \r at this time we have \r"+message)}
 
 main(value,Cnf);
 
 
 function Geesci(cnf) {
+
     if(cnf){
         make_same_size();
     }
@@ -46,7 +46,7 @@ function make_same_size() {
     app.activeDocument.resizeImage(1200,1200,600,ResampleMethod.AUTOMATIC,0);
 
     
-   // app.activeDocument.artLayers[0].resize(90,90,AnchorPosition.MIDDLECENTER);
+    app.activeDocument.artLayers[0].resize(100,100,AnchorPosition.MIDDLECENTER);
 
 
     save_png_chap(Name_x);
@@ -72,17 +72,20 @@ function make_chap() {
     var x=app.activeDocument.historyStates.length
     var sateref=app.activeDocument.historyStates[x-3];
     app.activeDocument.activeHistoryState=sateref;
-    
 
 }
 
 function make_cut(){
     var Name_cut = app.activeDocument.name.split(".")[0];
+    quickSel(0,0,30);
+    app.activeDocument.selection.smooth(10);
+    app.activeDocument.selection.clear();
+    app.activeDocument.selection.deselect();
     app.activeDocument.artLayers[0].applyStyle("cut");
-    app.activeDocument.artLayers[0].rasterize(RasterizeType.ENTIRELAYER)
+    app.activeDocument.artLayers[0].rasterize(RasterizeType.ENTIRELAYER);
     save_png_cut(Name_cut+"-c");
     //back to normal
-    var x=app.activeDocument.historyStates.length
+    var x=app.activeDocument.historyStates.length;
     var sateref=app.activeDocument.historyStates[x-3];
     app.activeDocument.activeHistoryState=sateref;   
 }
@@ -126,11 +129,10 @@ var png_Folder = new Folder ("C:/Geesci/png");
 var png_file=png_Folder.getFiles();
 
 for (var i=0 ; i<png_file.length; i++) {
-
     var format = png_file[i].name.split(".")[1]
-    if ((format=="png") || (format=="jpg") ){
+    if ( (format=="png") || (format=="jpg") || (format=="PNG") ){
         app.open( png_file[i] );
-        Geesci(cnf)
+        Geesci(cnf);
         app.activeDocument.close(SaveOptions.DONOTSAVECHANGES);
    }
    //close the png prepare Folder
@@ -222,3 +224,31 @@ function closeSmartObject() {
     app.activeDocument.save();
     app.activeDocument.close();    
 }
+
+function quickSel (x, y, tol){
+    var idsetd = charIDToTypeID( "setd" );
+        var desc2 = new ActionDescriptor();
+        var idnull = charIDToTypeID( "null" );
+            var ref1 = new ActionReference();
+            var idChnl = charIDToTypeID( "Chnl" );
+            var idfsel = charIDToTypeID( "fsel" );
+            ref1.putProperty( idChnl, idfsel );
+        desc2.putReference( idnull, ref1 );
+        var idT = charIDToTypeID( "T   " );
+            var desc3 = new ActionDescriptor();
+            var idHrzn = charIDToTypeID( "Hrzn" );
+            var idPxl = charIDToTypeID( "#Pxl" );
+            desc3.putUnitDouble( idHrzn, idPxl, x );
+            var idVrtc = charIDToTypeID( "Vrtc" );
+            var idPxl = charIDToTypeID( "#Pxl" );
+            desc3.putUnitDouble( idVrtc, idPxl, y);
+        var idPnt = charIDToTypeID( "Pnt " );
+        desc2.putObject( idT, idPnt, desc3 );
+        var idTlrn = charIDToTypeID( "Tlrn" );
+        desc2.putInteger( idTlrn, tol);
+        var idAntA = charIDToTypeID( "AntA" );
+        desc2.putBoolean( idAntA, true );
+        var idCntg = charIDToTypeID( "Cntg" );
+        desc2.putBoolean( idCntg, true );
+    executeAction( idsetd, desc2, DialogModes.NO );
+    };
