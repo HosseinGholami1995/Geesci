@@ -12,10 +12,10 @@ if (Cnf==false){
 
 main(value,Cnf);
 
-
 function Geesci(cnf) {
 
     if(cnf){
+        unlockLayer();
         make_same_size();
     }
     else{
@@ -46,7 +46,7 @@ function make_same_size() {
     app.activeDocument.resizeImage(1200,1200,600,ResampleMethod.AUTOMATIC,0);
 
     
-    app.activeDocument.artLayers[0].resize(100,100,AnchorPosition.MIDDLECENTER);
+    app.activeDocument.artLayers[0].resize(99,99,AnchorPosition.MIDDLECENTER);
 
 
     save_png_chap(Name_x);
@@ -251,4 +251,14 @@ function quickSel (x, y, tol){
         var idCntg = charIDToTypeID( "Cntg" );
         desc2.putBoolean( idCntg, true );
     executeAction( idsetd, desc2, DialogModes.NO );
-    };
+};
+
+
+function unlockLayer() {
+    if(app.activeDocument.activeLayer.isBackgroundLayer ) app.activeDocument.activeLayer.name = 'From Background';
+    if(app.activeDocument.activeLayer.allLocked) app.activeDocument.activeLayer.allLocked = false;
+    if(app.activeDocument.activeLayer.pixelsLocked && app.activeDocument.activeLayer.kind != LayerKind.TEXT) app.activeDocument.activeLayer.pixelsLocked = false;
+    if(app.activeDocument.activeLayer.positionLocked) app.activeDocument.activeLayer.positionLocked = false;
+    if(app.activeDocument.activeLayer.transparentPixelsLocked && app.activeDocument.activeLayer.kind != LayerKind.TEXT) app.activeDocument.activeLayer.transparentPixelsLocked = false;
+}
+    
