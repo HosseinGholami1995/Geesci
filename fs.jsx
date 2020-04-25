@@ -2,13 +2,13 @@
 //you should import file *****.asl 
 
 //for debug in vscode simply ,1)install Adobe Script Runner , 2)ExtenedScript Debuger 
-var message= "1) Game 2)Pezeshki 3)Tarah ------3)omomi  4)green, under compeletment ! "
+var message= "-Tarah -Kheng -Reshte -Music -Comic -Film -Football -Game -Omoomi \n -Comp -Logo "
 
 var value="Tarah"
 var Cnf =confirm("do U whant prepare size ?  \r\r else make moc,cut,chap ");
 
 if (Cnf==false){
-    value = prompt("type the kind of mockup which you whant to creat \r at this time we have \r"+message)}
+    value = prompt("type the kind of mockup which you whant to creat \r 1"+message)}
 
 main(value,Cnf);
 
@@ -64,10 +64,11 @@ function Select_moc(Seleceted_moc) {
 }
 
 function make_chap() {
-    var Name_chap = app.activeDocument.name.split(".")[0];
+    var Name = name_handler(app.activeDocument.name);
+
     app.activeDocument.artLayers[0].applyStyle("30px str");
     app.activeDocument.artLayers[0].rasterize(RasterizeType.ENTIRELAYER)
-    save_png_chap(Name_chap);
+    save_png_chap(Name);
     //back to normal
     var x=app.activeDocument.historyStates.length
     var sateref=app.activeDocument.historyStates[x-3];
@@ -76,14 +77,14 @@ function make_chap() {
 }
 
 function make_cut(){
-    var Name_cut = app.activeDocument.name.split(".")[0];
+    var Name = name_handler(app.activeDocument.name);
     quickSel(0,0,30);
     app.activeDocument.selection.smooth(10);
     app.activeDocument.selection.clear();
     app.activeDocument.selection.deselect();
     app.activeDocument.artLayers[0].applyStyle("cut");
     app.activeDocument.artLayers[0].rasterize(RasterizeType.ENTIRELAYER);
-    save_png_cut(Name_cut+"-c");
+    save_png_cut(Name+"-c");
     //back to normal
     var x=app.activeDocument.historyStates.length;
     var sateref=app.activeDocument.historyStates[x-3];
@@ -91,25 +92,28 @@ function make_cut(){
 }
 
 function make_mockup() {
-var namevar = app.activeDocument.name;
+var Name = app.activeDocument.name;
 app.activeDocument.resizeImage(1200,1200,600,ResampleMethod.AUTOMATIC,0);
+if(Name.search("~")!=-1)
+    app.activeDocument.artLayers[0].rotate(45,AnchorPosition.MIDDLECENTER);
 app.activeDocument.selection.copy()
 
 // //active a selective moc
 app.activeDocument=app.documents.getByName("MOC.psd");
-
 var moc = app.activeDocument.layerSets[0].layers.getByName("Place Sticker");
 app.activeDocument.activeLayer=moc;
+//Swithch inside smart OBJ
 var STO = openSmartObject(moc);
-
 STO.paste();
 STO.layers[1].remove();
-
 closeSmartObject();
+//back to mock
 app.activeDocument=app.documents.getByName("MOC.psd");
 app.activeDocument.save()
-save_png_moc(namevar.split('.')[0])
-app.activeDocument=app.documents.getByName(namevar);
+var Name_m = name_handler(Name);
+save_png_moc(Name_m)
+//back to picture
+app.activeDocument=app.documents.getByName(Name);
 }
 
 
@@ -261,4 +265,10 @@ function unlockLayer() {
     if(app.activeDocument.activeLayer.positionLocked) app.activeDocument.activeLayer.positionLocked = false;
     if(app.activeDocument.activeLayer.transparentPixelsLocked && app.activeDocument.activeLayer.kind != LayerKind.TEXT) app.activeDocument.activeLayer.transparentPixelsLocked = false;
 }
-    
+
+function name_handler(name){
+    var outname = name.split(".")[0];
+    if(outname.search("~")!=-1)
+        outname=outname.split("~")[0];
+    return outname;
+}
