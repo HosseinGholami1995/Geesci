@@ -4,30 +4,40 @@
 //for debug in vscode simply ,1)install Adobe Script Runner , 2)ExtenedScript Debuger 
 var message= "-Tarah -Kheng -Reshte -Music -Comic -Film -Football -Game -Omoomi \n -Comp -Logo "
 
-var value="Tarah"
-var Cnf =confirm("do U whant prepare size ?  \r\r else make moc,cut,chap ");
+// var Cnf =confirm("do U whant prepare size ?  \r\r else make moc,cut,chap ");
 
-if (Cnf==false){
-    value = prompt("type the kind of mockup which you whant to creat \r 1"+message)}
+// if (Cnf==false){
+//     value = prompt("type the kind of mockup which you whant to creat \r 1"+message)}
 
-main(value,Cnf);
+var input_path =Folder.selectDialog("koja bekhoonam")
+var dropbox_path="C:/Users/hosse/Dropbox/Geektori";
+var Cnf = false;
+var value="Tarah";
+var folder_name="100";
 
-function Geesci(cnf) {
+
+
+main(value,Cnf,input_path);
+
+
+function Geesci(cnf,input_path) {
 
     if(cnf){
+        tif_to_png();
         unlockLayer();
-        make_same_size();
+        make_same_size(input_path);
+        
     }
     else{
-        make_chap();
-        make_cut();
-        make_mockup();
+         make_chap(input_path);
+         make_cut(input_path);
+         make_mockup(input_path);
     }
 }
 
 
-function make_same_size() {
-    var Name_x = app.activeDocument.name.split(".")[0];
+function make_same_size(input_path) {
+    var Name = name_handler(app.activeDocument.name);
 
     var x=app.activeDocument.width.value;
     var y=app.activeDocument.height.value;
@@ -48,9 +58,7 @@ function make_same_size() {
     
     app.activeDocument.artLayers[0].resize(99,99,AnchorPosition.MIDDLECENTER);
 
-
-    save_png_chap(Name_x);
-    
+    save_file_local(Name,input_path,false);
 
 }
 
@@ -63,12 +71,12 @@ function Select_moc(Seleceted_moc) {
     }
 }
 
-function make_chap() {
+function make_chap(input_path) {
     var Name = name_handler(app.activeDocument.name);
 
     app.activeDocument.artLayers[0].applyStyle("30px str");
     app.activeDocument.artLayers[0].rasterize(RasterizeType.ENTIRELAYER)
-    save_png_chap(Name);
+    save_file_local(Name,input_path,false);
     //back to normal
     var x=app.activeDocument.historyStates.length
     var sateref=app.activeDocument.historyStates[x-3];
@@ -76,7 +84,7 @@ function make_chap() {
 
 }
 
-function make_cut(){
+function make_cut(input_path){
     var Name = name_handler(app.activeDocument.name);
     quickSel(0,0,30);
     app.activeDocument.selection.smooth(10);
@@ -84,18 +92,18 @@ function make_cut(){
     app.activeDocument.selection.deselect();
     app.activeDocument.artLayers[0].applyStyle("cut");
     app.activeDocument.artLayers[0].rasterize(RasterizeType.ENTIRELAYER);
-    save_png_cut(Name+"-c");
+    save_file_local(Name+"-c",input_path,false);
     //back to normal
     var x=app.activeDocument.historyStates.length;
     var sateref=app.activeDocument.historyStates[x-3];
     app.activeDocument.activeHistoryState=sateref;   
 }
 
-function make_mockup() {
+function make_mockup(input_path) {
 var Name = app.activeDocument.name;
 app.activeDocument.resizeImage(1200,1200,600,ResampleMethod.AUTOMATIC,0);
 if(Name.search("~")!=-1)
-    app.activeDocument.artLayers[0].rotate(45,AnchorPosition.MIDDLECENTER);
+    app.activeDocument.artLayers[0].rotate(-45,AnchorPosition.MIDDLECENTER);
 app.activeDocument.selection.copy()
 
 // //active a selective moc
@@ -111,14 +119,16 @@ closeSmartObject();
 app.activeDocument=app.documents.getByName("MOC.psd");
 app.activeDocument.save()
 var Name_m = name_handler(Name);
-save_png_moc(Name_m)
+//save_file_local(Name_m,input_path,true);
+save_png_moc_dropbox(Name_m,dropbox_path,folder_name);
 //back to picture
 app.activeDocument=app.documents.getByName(Name);
 }
 
 
 
-function main(Seleceted_moc,cnf) {    
+function main(Seleceted_moc,cnf,input_path) {   
+
 //=============Start=========================
 close_all();
 //============open the mocFile ==============
@@ -129,14 +139,14 @@ if(cnf==false){
 }
 
 //===========open the png prepare Folder ====
-var png_Folder = new Folder ("C:/Geesci/png");
+var png_Folder = new Folder (input_path);
 var png_file=png_Folder.getFiles();
 
 for (var i=0 ; i<png_file.length; i++) {
-    var format = png_file[i].name.split(".")[1]
-    if ( (format=="png") || (format=="jpg") || (format=="PNG") ){
+    var format = format_parser(png_file[i].name)
+    if ( (format=="png") || (format=="jpg") || (format=="PNG")|| (format=="tif") ){
         app.open( png_file[i] );
-        Geesci(cnf);
+        Geesci(cnf,input_path);
         app.activeDocument.close(SaveOptions.DONOTSAVECHANGES);
    }
    //close the png prepare Folder
@@ -201,12 +211,14 @@ function save_png_cut(name){
 }
 function save_png_chap(name){
     var doc_p =app.activeDocument;
+
     var save_path_p = File(doc_p.path + '/chap/' + name  + '.png');
     var opt = new PNGSaveOptions();
     opt.compression=1;
     opt.interlaced = false
     doc_p.saveAs(save_path_p,opt,true,Extension.NONE);
 }
+
 function save_png_moc(name){
     var doc_p =app.activeDocument;
     var save_path_p = File(doc_p.path + '/png/moc/' + name  + '.png');
@@ -215,6 +227,7 @@ function save_png_moc(name){
     opt.interlaced = false
     doc_p.saveAs(save_path_p,opt,true,Extension.NONE);
 }
+
 
 function openSmartObject (theLayer) {
     if (theLayer.kind == "LayerKind.SMARTOBJECT") {
@@ -257,6 +270,10 @@ function quickSel (x, y, tol){
     executeAction( idsetd, desc2, DialogModes.NO );
 };
 
+function tif_to_png(){
+    var Name = name_handler(app.activeDocument.name);
+    app.activeDocument.changeMode(ChangeMode.RGB);
+}
 
 function unlockLayer() {
     if(app.activeDocument.activeLayer.isBackgroundLayer ) app.activeDocument.activeLayer.name = 'From Background';
@@ -266,9 +283,48 @@ function unlockLayer() {
     if(app.activeDocument.activeLayer.transparentPixelsLocked && app.activeDocument.activeLayer.kind != LayerKind.TEXT) app.activeDocument.activeLayer.transparentPixelsLocked = false;
 }
 
+function format_parser(String){
+    var format = String.split(".")
+    return format[format.length-1]
+}
+
 function name_handler(name){
-    var outname = name.split(".")[0];
-    if(outname.search("~")!=-1)
-        outname=outname.split("~")[0];
+    var format = format_parser(name);
+    var outname = name.split('.'+format)[0];
+    if(name.search("~")!=-1)
+        outname=name.split("~")[0];
     return outname;
+}
+
+
+function save_png_moc_dropbox(name,path_of_dropbox,folder_name){
+    var doc_p =app.activeDocument;
+    var f =new Folder(path_of_dropbox + '/Geesci/'+ folder_name )
+    if (! f.exists)
+        f.create()
+    var save_path_p = new File(path_of_dropbox + '/Geesci/'+ folder_name +'/' + name + '.png');
+    var opt = new PNGSaveOptions();
+    opt.compression=5;
+    opt.interlaced = false
+    doc_p.saveAs(save_path_p,opt,true,Extension.NONE);
+}
+
+function save_file_local(name,input_path,moc){
+    var doc_p =app.activeDocument;
+    if(moc==false){
+        var f =new Folder(input_path + '/prints/' );
+        var save_path_p = new File(input_path+'/prints/' + name + '.png');
+    }
+    else{
+        var f =new Folder(input_path + '/prints/moc/' );
+        var save_path_p = new File(input_path+'/prints/moc/' + name + '.png');
+    }
+    
+    if (! f.exists)
+        f.create()
+
+    var opt = new PNGSaveOptions();
+    opt.compression=5;
+    opt.interlaced = false
+    doc_p.saveAs(save_path_p,opt,true,Extension.NONE);
 }
