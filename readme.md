@@ -13,7 +13,7 @@ after running this part your orginal picture will save in Chap folder
 
 2)You can modify the Stiker by your own and clean it
 	-- you should to Stroke the Stiker by your own after cleaning it !
-	-- if you whant to rotate the picture , you should rotate it to "-45 degree"
+	-- if you want to rotate the picture , you should rotate it to "-45 degree"
 		AND put "~" simbol at the end of their name !
 	--then copy it to png folder again
 3)run the program again , and press "NO" 

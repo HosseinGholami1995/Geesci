@@ -16,7 +16,6 @@ var value="Tarah";
 var folder_name="100";
 
 
-
 main(value,Cnf,input_path);
 
 
@@ -30,8 +29,8 @@ function Geesci(cnf,input_path) {
     }
     else{
          make_chap(input_path);
-         make_cut(input_path);
-         make_mockup(input_path);
+       //  make_cut(input_path);
+         //make_mockup(input_path);
     }
 }
 
@@ -74,7 +73,9 @@ function Select_moc(Seleceted_moc) {
 function make_chap(input_path) {
     var Name = name_handler(app.activeDocument.name);
 
-    app.activeDocument.artLayers[0].applyStyle("30px str");
+    var Strok_Color = detect_strok_color();
+    
+    app.activeDocument.selection.stroke(Strok_Color,25,StrokeLocation.CENTER,ColorBlendMode.NORMAL,100,false);
     app.activeDocument.artLayers[0].rasterize(RasterizeType.ENTIRELAYER)
     save_file_local(Name,input_path,false);
     //back to normal
@@ -128,6 +129,9 @@ app.activeDocument=app.documents.getByName(Name);
 
 
 function main(Seleceted_moc,cnf,input_path) {   
+
+app.preferences.rulerUnits=Units.PIXELS
+app.preferences.typeUnits=TypeUnits.PIXELS
 
 //=============Start=========================
 close_all();
@@ -327,4 +331,31 @@ function save_file_local(name,input_path,moc){
     opt.compression=5;
     opt.interlaced = false
     doc_p.saveAs(save_path_p,opt,true,Extension.NONE);
+}
+function add_dummy_pix(){
+    app.activeDocument.selection.select([[0,0],[0,1],[1,0],[1,1]]);
+    var White=new RGBColor;White.blue=255;White.green=255;White.red=255;
+    app.activeDocument.selection.fill(White,ColorBlendMode.NORMAL,100,true);
+    app.activeDocument.selection.deselect();
+}
+
+function detect_strok_color(){
+    var Strok_Color =new RGBColor;
+    var y=0;
+    var condition =true
+    add_dummy_pix()
+    app.activeDocument.colorSamplers.add([0,0]);
+    while(condition){
+        try{
+    
+            app.activeDocument.colorSamplers[0].move([600,y])
+            Strok_Color.hexValue=app.activeDocument.colorSamplers[0].color.rgb.hexValue
+            condition=false;
+        }catch(e){
+            y=y+15
+            condition=true;
+        }
+    }
+    app.activeDocument.colorSamplers.removeAll()
+    return Strok_Color
 }
