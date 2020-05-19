@@ -1,6 +1,6 @@
+
 //for run this code first you should have photoshop.version > cc18
 //you should import file *****.asl 
-
 //for debug in vscode simply ,1)install Adobe Script Runner , 2)ExtenedScript Debuger 
 var message= "-Tarah -Kheng -Reshte -Music -Comic -Film -Football -Game -Omoomi \n -Comp -Logo "
 
@@ -13,7 +13,7 @@ var input_path =Folder.selectDialog("koja bekhoonam")
 var dropbox_path="C:/Users/hosse/Dropbox/Geektori";
 var Cnf = false;
 var value="Tarah";
-var folder_name="100";
+var folder_name="Tarah-jadid==مهتاب صادقی";
 
 
 main(value,Cnf,input_path);
@@ -29,8 +29,8 @@ function Geesci(cnf,input_path) {
     }
     else{
          make_chap(input_path);
-       //  make_cut(input_path);
-         //make_mockup(input_path);
+         make_cut(input_path);
+         make_mockup(input_path);
     }
 }
 
@@ -103,8 +103,7 @@ function make_cut(input_path){
 function make_mockup(input_path) {
 var Name = app.activeDocument.name;
 app.activeDocument.resizeImage(1200,1200,600,ResampleMethod.AUTOMATIC,0);
-if(Name.search("~")!=-1)
-    app.activeDocument.artLayers[0].rotate(-45,AnchorPosition.MIDDLECENTER);
+Rotate_by_name(Name);
 app.activeDocument.selection.copy()
 
 // //active a selective moc
@@ -129,7 +128,7 @@ app.activeDocument=app.documents.getByName(Name);
 
 
 function main(Seleceted_moc,cnf,input_path) {   
-
+//configuration Editing:
 app.preferences.rulerUnits=Units.PIXELS
 app.preferences.typeUnits=TypeUnits.PIXELS
 
@@ -161,43 +160,13 @@ if(cnf==false){
     app.activeDocument.close(SaveOptions.DONOTSAVECHANGES);}
 
 alert("Finish");
-
 }
 
-// //mocuping
-// var clonidoc=app.documents.getByName("Dragon.png");
-// app.activeDocument=clonidoc
-// clonidoc.selection.copy()
-
-// //active a selective moc
-// app.activeDocument=app.documents.getByName("CUT-moc.psd");
-// var doc_main = app.activeDocument;
-// var moc = doc_main.layers.getByName("cut-obj");
-// app.activeDocument.activeLayer=moc;
-// var STO = openSmartObject(moc);
-
-// STO.layers[0].visible=false;
-// STO.paste();
-
-// closeSmartObject()
-// //_________________________________
-// var doc_chap = app.documents.getByName("Cookie.png");
-// app.activeDocument=doc_chap
-// //chapp
-// var White=new RGBColor;White.blue=255;White.green=255;White.red=255;
-// var Black=new RGBColor;Black.blue=0;Black.green=0;Black.red=0;
-// doc_chap.selection.stroke(White,20,StrokeLocation.OUTSIDE,ColorBlendMode.NORMAL,100,false);
-// save_png("mamadnobari",5);
-// //______________________________
-
-//use Style for Cut
-//app.activeDocument.artLayers[0].applyStyle("cut");
-
-//work with history
-// var sateref=app.activeDocument.historyStates.getByName("Open");
-// app.activeDocument.activeHistoryState=sateref;
-
-
+///_________________________________________________________________________________________________
+// Here are the function intgration
+// 
+// 
+//__________________________________________________________________________________________________
 function close_all() {
     while (app.documents.length!=0) {
         app.activeDocument.close()
@@ -358,4 +327,13 @@ function detect_strok_color(){
     }
     app.activeDocument.colorSamplers.removeAll()
     return Strok_Color
+}
+
+
+function Rotate_by_name(Name){
+    if(Name.search("~")!=-1)
+        app.activeDocument.artLayers[0].rotate(-45,AnchorPosition.MIDDLECENTER);
+    if(Name.search("||")!=-1)
+        app.activeDocument.artLayers[0].rotate(45,AnchorPosition.MIDDLECENTER);
+    
 }
