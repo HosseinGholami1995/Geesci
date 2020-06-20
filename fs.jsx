@@ -13,7 +13,7 @@ var input_path =Folder.selectDialog("koja bekhoonam")
 var dropbox_path="C:/Users/hosse/Dropbox/Geektori";
 var Cnf = false;
 var value="Tarah";
-var folder_name="Tarah-jadid==مهتاب صادقی";
+var folder_name="abc";
 
 
 main(value,Cnf,input_path);
@@ -55,7 +55,7 @@ function make_same_size(input_path) {
     app.activeDocument.resizeImage(1200,1200,600,ResampleMethod.AUTOMATIC,0);
 
     
-    app.activeDocument.artLayers[0].resize(99,99,AnchorPosition.MIDDLECENTER);
+    app.activeDocument.artLayers[0].resize(90,90,AnchorPosition.MIDDLECENTER);
 
     save_file_local(Name,input_path,false);
 
@@ -75,12 +75,16 @@ function make_chap(input_path) {
 
     var Strok_Color = detect_strok_color();
     
-    app.activeDocument.selection.stroke(Strok_Color,25,StrokeLocation.CENTER,ColorBlendMode.NORMAL,100,false);
-    app.activeDocument.artLayers[0].rasterize(RasterizeType.ENTIRELAYER)
+    for (var i = 0; i < 15; i++) {
+        app.activeDocument.selection.stroke(Strok_Color,5,StrokeLocation.CENTER,ColorBlendMode.NORMAL,100,false);
+        app.activeDocument.artLayers[0].rasterize(RasterizeType.ENTIRELAYER);
+    };
+    
+    
     save_file_local(Name,input_path,false);
     //back to normal
     var x=app.activeDocument.historyStates.length
-    var sateref=app.activeDocument.historyStates[x-3];
+    var sateref=app.activeDocument.historyStates[x-31];
     app.activeDocument.activeHistoryState=sateref;
 
 }
@@ -101,28 +105,28 @@ function make_cut(input_path){
 }
 
 function make_mockup(input_path) {
-var Name = app.activeDocument.name;
-app.activeDocument.resizeImage(1200,1200,600,ResampleMethod.AUTOMATIC,0);
-Rotate_by_name(Name);
-app.activeDocument.selection.copy()
+    var Name = app.activeDocument.name;
+    app.activeDocument.resizeImage(1200,1200,600,ResampleMethod.AUTOMATIC,0);
+    Rotate_by_name(Name);
+    app.activeDocument.selection.copy()
 
-// //active a selective moc
-app.activeDocument=app.documents.getByName("MOC.psd");
-var moc = app.activeDocument.layerSets[0].layers.getByName("Place Sticker");
-app.activeDocument.activeLayer=moc;
-//Swithch inside smart OBJ
-var STO = openSmartObject(moc);
-STO.paste();
-STO.layers[1].remove();
-closeSmartObject();
-//back to mock
-app.activeDocument=app.documents.getByName("MOC.psd");
-app.activeDocument.save()
-var Name_m = name_handler(Name);
-//save_file_local(Name_m,input_path,true);
-save_png_moc_dropbox(Name_m,dropbox_path,folder_name);
-//back to picture
-app.activeDocument=app.documents.getByName(Name);
+    // //active a selective moc
+    app.activeDocument=app.documents.getByName("MOC.psd");
+    var moc = app.activeDocument.layerSets[0].layers.getByName("Place Sticker");
+    app.activeDocument.activeLayer=moc;
+    //Swithch inside smart OBJ
+    var STO = openSmartObject(moc);
+    STO.paste();
+    STO.layers[1].remove();
+    closeSmartObject();
+    //back to mock
+    app.activeDocument=app.documents.getByName("MOC.psd");
+    app.activeDocument.save()
+    var Name_m = name_handler(Name);
+    save_file_local(Name_m,input_path,true);
+    //save_png_moc_dropbox(Name_m,dropbox_path,folder_name);
+    //back to picture
+    app.activeDocument=app.documents.getByName(Name);
 }
 
 
@@ -321,7 +325,7 @@ function detect_strok_color(){
             Strok_Color.hexValue=app.activeDocument.colorSamplers[0].color.rgb.hexValue
             condition=false;
         }catch(e){
-            y=y+15
+            y=y+5
             condition=true;
         }
     }
@@ -331,9 +335,11 @@ function detect_strok_color(){
 
 
 function Rotate_by_name(Name){
-    if(Name.search("~")!=-1)
+    if(Name.search("~")!=-1){
         app.activeDocument.artLayers[0].rotate(-45,AnchorPosition.MIDDLECENTER);
-    if(Name.search("||")!=-1)
+    }
+    if(Name.search("#~")!=-1){
         app.activeDocument.artLayers[0].rotate(45,AnchorPosition.MIDDLECENTER);
+    }
     
 }
