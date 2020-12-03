@@ -2,44 +2,56 @@
 //for run this code first you should have photoshop.version > cc18
 //you should import file *****.asl 
 //for debug in vscode simply ,1)install Adobe Script Runner , 2)ExtenedScript Debuger 
-var message= "-Tarah -Kheng -Reshte -Music -Comic -Film -Football -Game -Omoomi \n -Comp -Logo "
+var message= "-Tarah -Kheng -Reshte -Music -Comic -Film -Football -Game -Omoomi \n -Comp -Logo -Black "
 
 // var Cnf =confirm("do U whant prepare size ?  \r\r else make moc,cut,chap ");
 
 // if (Cnf==false){
-//     value = prompt("type the kind of mockup which you whant to creat \r 1"+message)}
-
+//     value = prompt("type the kind of mockup which you whant to creat \r 1"+message)
 var input_path =Folder.selectDialog("koja bekhoonam")
 var dropbox_path="C:/Users/hosse/Dropbox/Geektori";
 var Cnf = false;
-var value="Tarah";
+var Remove_marginal = false;
+
+var value="Black";
 var folder_name="abc";
 
 
-main(value,Cnf,input_path);
+
+main(value,Cnf,input_path,Remove_marginal);
 
 
-function Geesci(cnf,input_path) {
+
+function Geesci(cnf,input_path,Remove_marginal) {
 
     if(cnf){
         tif_to_png();
         unlockLayer();
-        make_same_size(input_path);
+        make_same_size(input_path,Remove_marginal);
         
     }
     else{
-         make_chap(input_path);
-         make_cut(input_path);
+        //  make_chap(input_path);
+        //  make_cut(input_path);
          make_mockup(input_path);
     }
 }
 
 
-function make_same_size(input_path) {
+function make_same_size(input_path,Remove_marginal) {
     var Name = name_handler(app.activeDocument.name);
-
+    // make same size
     var x=app.activeDocument.width.value;
     var y=app.activeDocument.height.value;
+    //remove marginal
+    if (Remove_marginal){
+        // var Margin=detect_margin(x/2)
+        quickSel(1,1,30);
+        // app.activeDocument.selection.smooth(10);
+        app.activeDocument.selection.clear();
+        app.activeDocument.selection.deselect(); 
+    }
+    //end remove marginal 
     var z=0;
 
     if(x>y){
@@ -53,11 +65,14 @@ function make_same_size(input_path) {
     }
     
     app.activeDocument.resizeImage(1200,1200,600,ResampleMethod.AUTOMATIC,0);
-
+    app.activeDocument.artLayers[0].resize(85,85,AnchorPosition.MIDDLECENTER);
     
-    app.activeDocument.artLayers[0].resize(90,90,AnchorPosition.MIDDLECENTER);
+    app.activeDocument.artLayers[0].applyStyle("Clean");
+    app.activeDocument.artLayers[0].rasterize(RasterizeType.ENTIRELAYER);
+    
 
     save_file_local(Name,input_path,false);
+
 
 }
 
@@ -72,11 +87,13 @@ function Select_moc(Seleceted_moc) {
 
 function make_chap(input_path) {
     var Name = name_handler(app.activeDocument.name);
-
     var Strok_Color = detect_strok_color();
+    var White=new RGBColor;White.blue=255;White.green=255;White.red=255;
+    app.activeDocument.selection.stroke(White,3,StrokeLocation.OUTSIDE,ColorBlendMode.NORMAL,100,false);
+    app.activeDocument.artLayers[0].rasterize(RasterizeType.ENTIRELAYER);
     
     for (var i = 0; i < 15; i++) {
-        app.activeDocument.selection.stroke(Strok_Color,5,StrokeLocation.CENTER,ColorBlendMode.NORMAL,100,false);
+        app.activeDocument.selection.stroke(Strok_Color,7,StrokeLocation.CENTER,ColorBlendMode.NORMAL,100,false);
         app.activeDocument.artLayers[0].rasterize(RasterizeType.ENTIRELAYER);
     };
     
@@ -131,7 +148,7 @@ function make_mockup(input_path) {
 
 
 
-function main(Seleceted_moc,cnf,input_path) {   
+function main(Seleceted_moc,cnf,input_path,Remove_marginal) {   
 //configuration Editing:
 app.preferences.rulerUnits=Units.PIXELS
 app.preferences.typeUnits=TypeUnits.PIXELS
@@ -153,7 +170,7 @@ for (var i=0 ; i<png_file.length; i++) {
     var format = format_parser(png_file[i].name)
     if ( (format=="png") || (format=="jpg") || (format=="PNG")|| (format=="tif") ){
         app.open( png_file[i] );
-        Geesci(cnf,input_path);
+        Geesci(cnf,input_path,Remove_marginal);
         app.activeDocument.close(SaveOptions.DONOTSAVECHANGES);
    }
    //close the png prepare Folder
@@ -162,8 +179,8 @@ for (var i=0 ; i<png_file.length; i++) {
 //close the mockup
 if(cnf==false){
     app.activeDocument.close(SaveOptions.DONOTSAVECHANGES);}
-
 alert("Finish");
+
 }
 
 ///_________________________________________________________________________________________________
@@ -333,6 +350,25 @@ function detect_strok_color(){
     return Strok_Color
 }
 
+function detect_margin(vertical){
+    var Strok_Color =new RGBColor;
+    var y=0;
+    var condition =true
+    add_dummy_pix()
+    app.activeDocument.colorSamplers.add([0,0]);
+    while(condition){
+        try{
+            app.activeDocument.colorSamplers[0].move([vertical,y])
+            Strok_Color.hexValue=app.activeDocument.colorSamplers[0].color.rgb.hexValue
+            condition=false;
+        }catch(e){
+            y=y+3
+            condition=true;
+        }
+    }
+    app.activeDocument.colorSamplers.removeAll()
+    return y
+}
 
 function Rotate_by_name(Name){
     if(Name.search("~")!=-1){
