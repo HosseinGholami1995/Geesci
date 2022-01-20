@@ -2,43 +2,79 @@
 //for run this code first you should have photoshop.version > cc18
 //you should import file *****.asl 
 //for debug in vscode simply ,1)install Adobe Script Runner , 2)ExtenedScript Debuger 
-var message= "-Tarah -Kheng -Reshte -Music -Comic -Film -Football -Game -Omoomi \n -Comp -Logo -Black "
+var message= "-Tarah -Kheng -Reshte -Music -Comi(anime) -Film -Football(Varzeshi) -Game -Omoomi  -Comp -Logo -Black "
 
 // var Cnf =confirm("do U whant prepare size ?  \r\r else make moc,cut,chap ");
 
 // if (Cnf==false){
 //     value = prompt("type the kind of mockup which you whant to creat \r 1"+message)
 var input_path =Folder.selectDialog("koja bekhoonam")
-var dropbox_path="C:/Users/hosse/Dropbox/Geektori";
-var Cnf = false;
+var dropbox_path="C:/Users/hosse/Dropboxktori";
 var Remove_marginal = false;
+var clean =false;
 
-var value="Black";
+var Cnf = false;
+
+var value="Tarah";
 var folder_name="abc";
-
 
 
 main(value,Cnf,input_path,Remove_marginal);
 
 
-
-function Geesci(cnf,input_path,Remove_marginal) {
-
+function Geesci(cnf,input_path,Remove_marginal,clean) {
     if(cnf){
         tif_to_png();
         unlockLayer();
-        make_same_size(input_path,Remove_marginal);
-        
+        make_same_size(input_path,Remove_marginal,clean);
     }
     else{
-        //  make_chap(input_path);
-        //  make_cut(input_path);
-         make_mockup(input_path);
+        make_it_center();
+        make_it_fit_to_frame();
+        make_chap(input_path);
+        make_cut(input_path);
+        make_mockup(input_path);
     }
 }
 
+function make_it_center(){
+    var active_art_layer =app.activeDocument.artLayers[0];
+    var position= active_art_layer.bounds;
+    var haf_w=parseInt((position[2].value-position[0].value)/2);
+    var haf_y=parseInt((position[3].value-position[1].value)/2);
+    
+    var first_left_corner_point_w= position[0];
+    var new_first_left_corner_point_w = (600 - haf_w )-first_left_corner_point_w;
+    // alert("x transfer :"+new_first_left_corner_point_w);
 
-function make_same_size(input_path,Remove_marginal) {
+    var first_left_corner_point_h= position[1];
+    var new_first_left_corner_point_h = (600 - haf_y )-first_left_corner_point_h;
+    // alert("y transfer :"+new_first_left_corner_point_h);
+    active_art_layer.translate(-new_first_left_corner_point_w,-new_first_left_corner_point_h);
+    // alert("haaaan");
+}
+function make_it_fit_to_frame(){
+    
+    var active_art_layer =app.activeDocument.artLayers[0];
+    var position= active_art_layer.bounds;
+    var w1=position[2]-position[0]
+    var h1=position[3]-position[1]
+    var increase_percent=0.0;
+    var inside_thershould =50
+
+    // alert(w1+"===="+h1);
+    if (w1>h1){
+        //i have to make it bigger in ARZ
+        increase_percent=parseInt((((1200-(2*inside_thershould))/(w1)))*100);
+    }else{
+        //i have to make it bigger in ERTEFAH
+        increase_percent=parseInt((((1200-(2*inside_thershould))/(h1)))*100);
+    };
+    // alert(increase_percent);
+    active_art_layer.resize(increase_percent,increase_percent,AnchorPosition.MIDDLECENTER);    
+}
+
+function make_same_size(input_path,Remove_marginal,clean) {
     var Name = name_handler(app.activeDocument.name);
     // make same size
     var x=app.activeDocument.width.value;
@@ -46,12 +82,13 @@ function make_same_size(input_path,Remove_marginal) {
     //remove marginal
     if (Remove_marginal){
         // var Margin=detect_margin(x/2)
+        // quickSel(Margin,Margin,30)
         quickSel(1,1,30);
-        // app.activeDocument.selection.smooth(10);
+        app.activeDocument.selection.smooth(10);
         app.activeDocument.selection.clear();
         app.activeDocument.selection.deselect(); 
-    }
-    //end remove marginal 
+    }//end remove marginal noise
+    
     var z=0;
 
     if(x>y){
@@ -65,11 +102,13 @@ function make_same_size(input_path,Remove_marginal) {
     }
     
     app.activeDocument.resizeImage(1200,1200,600,ResampleMethod.AUTOMATIC,0);
-    app.activeDocument.artLayers[0].resize(85,85,AnchorPosition.MIDDLECENTER);
+    app.activeDocument.artLayers[0].resize(95,95,AnchorPosition.MIDDLECENTER);
     
-    app.activeDocument.artLayers[0].applyStyle("Clean");
-    app.activeDocument.artLayers[0].rasterize(RasterizeType.ENTIRELAYER);
-    
+    if (clean){
+        app.activeDocument.artLayers[0].applyStyle("Clean");
+        app.activeDocument.artLayers[0].rasterize(RasterizeType.ENTIRELAYER);
+            
+    }
 
     save_file_local(Name,input_path,false);
 
@@ -88,9 +127,10 @@ function Select_moc(Seleceted_moc) {
 function make_chap(input_path) {
     var Name = name_handler(app.activeDocument.name);
     var Strok_Color = detect_strok_color();
-    var White=new RGBColor;White.blue=255;White.green=255;White.red=255;
-    app.activeDocument.selection.stroke(White,3,StrokeLocation.OUTSIDE,ColorBlendMode.NORMAL,100,false);
-    app.activeDocument.artLayers[0].rasterize(RasterizeType.ENTIRELAYER);
+    
+    // var White=new RGBColor;White.blue=255;White.green=255;White.red=255;
+    // app.activeDocument.selection.stroke(White,3,StrokeLocation.OUTSIDE,ColorBlendMode.NORMAL,100,false);
+    // app.activeDocument.artLayers[0].rasterize(RasterizeType.ENTIRELAYER);
     
     for (var i = 0; i < 15; i++) {
         app.activeDocument.selection.stroke(Strok_Color,7,StrokeLocation.CENTER,ColorBlendMode.NORMAL,100,false);
@@ -125,6 +165,8 @@ function make_mockup(input_path) {
     var Name = app.activeDocument.name;
     app.activeDocument.resizeImage(1200,1200,600,ResampleMethod.AUTOMATIC,0);
     Rotate_by_name(Name);
+    
+
     app.activeDocument.selection.copy()
 
     // //active a selective moc
@@ -134,6 +176,8 @@ function make_mockup(input_path) {
     //Swithch inside smart OBJ
     var STO = openSmartObject(moc);
     STO.paste();
+
+    
     STO.layers[1].remove();
     closeSmartObject();
     //back to mock
@@ -148,51 +192,48 @@ function make_mockup(input_path) {
 
 
 
-function main(Seleceted_moc,cnf,input_path,Remove_marginal) {   
-//configuration Editing:
-app.preferences.rulerUnits=Units.PIXELS
-app.preferences.typeUnits=TypeUnits.PIXELS
+function main(Seleceted_moc,cnf,input_path,Remove_marginal,clean) {   
+    //configuration Editing:
+    app.preferences.rulerUnits=Units.PIXELS;
+    app.preferences.typeUnits=TypeUnits.PIXELS;
+    
+    //=============Start=========================
+    close_all();
+    //============open the mocFile ==============
+    if(cnf==false){
+        var moc_file = File("C:/Geesci/MOC.psd");
+        app.open( moc_file );
+        Select_moc(Seleceted_moc);
+    }
 
-//=============Start=========================
-close_all();
-//============open the mocFile ==============
-if(cnf==false){
-    var moc_file = File("C:/Geesci/MOC.psd");
-    app.open( moc_file );
-    Select_moc(Seleceted_moc);
-}
+    //===========open the png prepare Folder ====
+    var png_Folder = new Folder (input_path);
+    var png_file=png_Folder.getFiles();
 
-//===========open the png prepare Folder ====
-var png_Folder = new Folder (input_path);
-var png_file=png_Folder.getFiles();
-
-for (var i=0 ; i<png_file.length; i++) {
-    var format = format_parser(png_file[i].name)
-    if ( (format=="png") || (format=="jpg") || (format=="PNG")|| (format=="tif") ){
-        app.open( png_file[i] );
-        Geesci(cnf,input_path,Remove_marginal);
+    for (var i=0 ; i<png_file.length; i++) {
+        var format = format_parser(png_file[i].name)
+        if ( (format=="png") || (format=="jpg") || (format=="PNG")|| (format=="tif")|| (format=="pdf") ){
+            app.open( png_file[i] );
+            Geesci(cnf,input_path,Remove_marginal,clean);
+            app.activeDocument.close(SaveOptions.DONOTSAVECHANGES);
+        }
+        //close the png prepare Folder
+    }
+    //close the mockup
+    if(cnf==false){
         app.activeDocument.close(SaveOptions.DONOTSAVECHANGES);
-   }
-   //close the png prepare Folder
-
-}
-//close the mockup
-if(cnf==false){
-    app.activeDocument.close(SaveOptions.DONOTSAVECHANGES);}
-alert("Finish");
+    }
+    alert("Finish");
 
 }
 
 ///_________________________________________________________________________________________________
-// Here are the function intgration
-// 
-// 
+// Here are the function 
 //__________________________________________________________________________________________________
 function close_all() {
     while (app.documents.length!=0) {
         app.activeDocument.close()
-    }
-          
+    }     
 }
 
 function save_png_cut(name){
@@ -373,9 +414,14 @@ function detect_margin(vertical){
 function Rotate_by_name(Name){
     if(Name.search("~")!=-1){
         app.activeDocument.artLayers[0].rotate(-45,AnchorPosition.MIDDLECENTER);
+        app.activeDocument.artLayers[0].resize(80,80,AnchorPosition.MIDDLECENTER);
     }
-    if(Name.search("#~")!=-1){
+    else if(Name.search("#~")!=-1){
         app.activeDocument.artLayers[0].rotate(45,AnchorPosition.MIDDLECENTER);
+        app.activeDocument.artLayers[0].resize(80,80,AnchorPosition.MIDDLECENTER);
+    }else{  
+        app.activeDocument.artLayers[0].resize(85,85,AnchorPosition.MIDDLECENTER);
     }
+
     
 }
