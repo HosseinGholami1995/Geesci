@@ -9,7 +9,6 @@ var message= "-Tarah -Kheng -Reshte -Music -Comi(anime) -Film -Football(Varzeshi
 // if (Cnf==false){
 //     value = prompt("type the kind of mockup which you whant to creat \r 1"+message)
 var input_path =Folder.selectDialog("koja bekhoonam")
-var dropbox_path="C:/Users/hosse/Dropboxktori";
 var Remove_marginal = false;
 var clean =false;
 
@@ -45,13 +44,10 @@ function make_it_center(){
     
     var first_left_corner_point_w= position[0];
     var new_first_left_corner_point_w = (600 - haf_w )-first_left_corner_point_w;
-    // alert("x transfer :"+new_first_left_corner_point_w);
-
     var first_left_corner_point_h= position[1];
     var new_first_left_corner_point_h = (600 - haf_y )-first_left_corner_point_h;
-    // alert("y transfer :"+new_first_left_corner_point_h);
     active_art_layer.translate(-new_first_left_corner_point_w,-new_first_left_corner_point_h);
-    // alert("haaaan");
+
 }
 function make_it_fit_to_frame(){
     
@@ -110,7 +106,7 @@ function make_same_size(input_path,Remove_marginal,clean) {
             
     }
 
-    save_file_local(Name,input_path,false);
+    save_file_local(Name,input_path,0);
 
 
 }
@@ -138,7 +134,7 @@ function make_chap(input_path) {
     };
     
     
-    save_file_local(Name,input_path,false);
+    save_file_local(Name,input_path,1);
     //back to normal
     var x=app.activeDocument.historyStates.length
     var sateref=app.activeDocument.historyStates[x-31];
@@ -154,7 +150,7 @@ function make_cut(input_path){
     app.activeDocument.selection.deselect();
     app.activeDocument.artLayers[0].applyStyle("cut");
     app.activeDocument.artLayers[0].rasterize(RasterizeType.ENTIRELAYER);
-    save_file_local(Name+"-c",input_path,false);
+    save_file_local(Name+"-c",input_path,1);
     //back to normal
     var x=app.activeDocument.historyStates.length;
     var sateref=app.activeDocument.historyStates[x-3];
@@ -184,7 +180,7 @@ function make_mockup(input_path) {
     app.activeDocument=app.documents.getByName("MOC.psd");
     app.activeDocument.save()
     var Name_m = name_handler(Name);
-    save_file_local(Name_m,input_path,true);
+    save_file_local(Name_m,input_path,2);
     //save_png_moc_dropbox(Name_m,dropbox_path,folder_name);
     //back to picture
     app.activeDocument=app.documents.getByName(Name);
@@ -346,23 +342,29 @@ function save_png_moc_dropbox(name,path_of_dropbox,folder_name){
 
 function save_file_local(name,input_path,moc){
     var doc_p =app.activeDocument;
-    if(moc==false){
-        var f =new Folder(input_path + '/prints/' );
-        var save_path_p = new File(input_path+'/prints/' + name + '.png');
+    var root_path = input_path.toString().split("/clean")[0];
+
+    if(moc==0){
+        var f =new Folder(input_path + '/clean/' );
+        var save_path_p = new File(input_path+'/clean/' + name + '.png');
+    }else if(moc==1){
+        var f =new Folder(root_path + '/print/' );
+        var save_path_p = new File(root_path+'/print/' + name + '.png');
+    }else{
+        var f =new Folder(root_path + '/moc/' );
+        var save_path_p = new File(root_path+'/moc/' + name + '.png');
     }
-    else{
-        var f =new Folder(input_path + '/prints/moc/' );
-        var save_path_p = new File(input_path+'/prints/moc/' + name + '.png');
-    }
-    
-    if (! f.exists)
+
+    if (!f.exists){
         f.create()
+    }
 
     var opt = new PNGSaveOptions();
     opt.compression=5;
     opt.interlaced = false
     doc_p.saveAs(save_path_p,opt,true,Extension.NONE);
 }
+
 function add_dummy_pix(){
     app.activeDocument.selection.select([[0,0],[0,1],[1,0],[1,1]]);
     var White=new RGBColor;White.blue=255;White.green=255;White.red=255;
